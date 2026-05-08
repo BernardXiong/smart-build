@@ -1,0 +1,78 @@
+#!/bin/sh
+
+set -eu
+
+usage() {
+    cat >&2 <<'EOF'
+Usage:
+  run-qemu <qemuarm64|qemuriscv64> [image-type]
+
+Examples:
+  run-qemu qemuarm64
+  run-qemu qemuriscv64 mini_rootfs
+EOF
+}
+
+die() {
+    printf 'error: %s\n' "$*" >&2
+    exit 1
+}
+
+if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
+    usage
+    exit 2
+fi
+
+machine="$1"
+image_type="${2:-ext4}"
+script_dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+kernel_image="$script_dir/rtthread.bin"
+rootfs_image="$script_dir/$image_type.img"
+
+[ -f "$kernel_image" ] || die "kernel image not found: $kernel_image"
+[ -f "$rootfs_image" ] || die "rootfs image not found: $rootfs_image"
+
+case "$machine" in
+    qemuarm64)
+        qemu_bin="qemu-system-aarch64"
+        command -v "$qemu_bin" >/dev/null 2>&1 || die "$qemu_bin not found in PATH"
+
+        exec "$qemu_bin" \
+            -M virt,gic-version=2 \
+            -cpu cortex-a53 \
+            -smp 4 \
+            -m 128M \
+            -kernel "$kernel_image" \
+            -nographic \
+            -drive "if=none,file=$rootfs_image,format=raw,id=blk0" \
+            -device virtio-blk-device,drive=blk0,bus=virtio-mmio-bus.0 \
+            -netdev user,id=net0,hostfwd=tcp::58080-:22 \
+            -device virtio-net-device,netdev=net0,bus=virtio-mmio-bus.1 \
+            -device virtio-serial-device \
+            -chardev socket,host=127.0.0.1,port=43210,server=on,wait=off,telnet=on,id=console0 \
+            -device virtserialport,chardev=console0
+        ;;
+    qemuriscv64)
+        qemu_bin="qemu-system-riscv64"
+        command -v "$qemu_bin" >/dev/null 2>&1 || die "$qemu_bin not found in PATH"
+
+        exec "$qemu_bin" \
+            -machine virt \
+            -m 256M \
+            -kernel "$kernel_image" \
+            -drive "if=none,file=$rootfs_image,format=raw,id=blk0" \
+            -device virtio-blk-device,drive=blk0,bus=virtio-mmio-bus.0 \
+            -netdev user,id=tap0 \
+            -device virtio-net-device,netdev=tap0,bus=virtio-mmio-bus.1 \
+            -device virtio-gpu-device,bus=virtio-mmio-bus.2 \
+            -display none \
+            -serial stdio \
+            -device virtio-serial-device \
+            -chardev socket,host=127.0.0.1,port=4321,server=on,wait=off,telnet=on,id=console0 \
+            -device virtserialport,chardev=console0
+        ;;
+    *)
+        usage
+        die "unsupported machine: $machine"
+        ;;
+esac
