@@ -11,7 +11,7 @@
 +RT_DIR=$(SDK_DIR)/sdk/rt-thread
 +INC_DIR=${SDK_DIR}/sdk/include
 +LIB_DIR=${SDK_DIR}/sdk/lib/risc-v/rv64gc
-+CFLAGS = -march=rv64imac -fvisibility=hidden -O3 -I. -I$(RT_DIR)/include -I$(RT_DIR)/components/dfs -I$(RT_DIR)/components/drivers -I$(RT_DIR)/components/finsh -I$(RT_DIR)/components/net -I${INC_DIR}
++CFLAGS = -march=rv64imafdc -mabi=lp64 -fvisibility=hidden -O3 -I. -I$(RT_DIR)/include -I$(RT_DIR)/components/dfs -I$(RT_DIR)/components/drivers -I$(RT_DIR)/components/finsh -I$(RT_DIR)/components/net -I${INC_DIR}
 +LDFLAGS = -L. -L${LIB_DIR} -L$(RT_DIR)/lib/risc-v/rv64gc -Wl,--start-group -Wl,-whole-archive -lrtthread -Wl,-no-whole-archive -Wl,--end-group
 +
  # *DOCUMENTATION*
