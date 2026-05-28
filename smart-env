@@ -79,7 +79,7 @@ BB_NUMBER_THREADS ?= "\${@oe.utils.cpu_count()}"
 PARALLEL_MAKE ?= "-j \${@oe.utils.cpu_count()}"
 
 # 下载和缓存目录
-DL_DIR ?= "\${TOPDIR}/downloads"
+DL_DIR ?= "$SMARTROOT/downloads"
 SSTATE_DIR ?= "\${TOPDIR}/sstate-cache"
 
 # 临时目录
@@ -118,6 +118,7 @@ echo "     $ bitbake smart -c build_all"
 echo
 echo "  Others:"
 echo "     $ bitbake smart -c build_kernel"
+echo "     $ bitbake smart -c build_mini_rootfs"
 echo "     $ bitbake smart-gcc -c install_toolchain"
 echo "     $ bitbake busybox -c build_rootfs"
 echo
