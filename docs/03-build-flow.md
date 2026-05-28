@@ -9,7 +9,7 @@ smart-build 采用**分层架构**，自下而上分为三层：
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                      用户操作层                                  │
-│  source smart-env → bitbake smart -c build_all → run_qemu.sh   │
+│  source smart-env → bitbake smart -c build_all → run-qemu      │
 ├─────────────────────────────────────────────────────────────────┤
 │                    meta-smart 业务层                              │
 │  ┌──────────┐  ┌───────────┐  ┌──────────┐  ┌───────────────┐  │
@@ -110,7 +110,7 @@ bitbake smart -c build_all
     └── 编译完成！输出目录：build/<MACHINE>/
          ├── rtthread.bin         # RT-Smart 内核二进制
          ├── ext4.img             # 根文件系统镜像
-         └── run_<MACHINE>.sh     # QEMU 启动脚本
+         └── run-qemu             # QEMU 启动脚本
 ```
 
 ## 3.4 任务依赖关系
@@ -155,7 +155,7 @@ build/
 └── <MACHINE>/                  # 目标机器输出
     ├── rtthread.bin            # RT-Smart 内核
     ├── ext4.img                # 根文件系统
-    └── run_<MACHINE>.sh        # QEMU 启动脚本
+    └── run-qemu                # QEMU 启动脚本
 ```
 
 ## 3.6 源码获取策略

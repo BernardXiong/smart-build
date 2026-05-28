@@ -127,34 +127,26 @@ cp meta-smart/recipes-kernel/rt-thread/qemuarm64_defconfig \
 
 然后根据目标板的硬件特性调整配置项。
 
-## 4.8 步骤六：创建 QEMU 启动脚本（如适用）
+## 4.8 步骤六：扩展 QEMU 启动入口（如适用）
 
-如果新板卡是 QEMU 虚拟平台，在 `tools/` 目录下创建启动脚本 `tools/run_myboard.sh`：
+如果新板卡是 QEMU 虚拟平台，在 `tools/run-qemu` 的 `case "$machine"` 中增加 `myboard` 分支：
 
-```bash
-#!/bin/bash
+```sh
+    myboard)
+        qemu_bin="qemu-system-aarch64"
+        command -v "$qemu_bin" >/dev/null 2>&1 || die "$qemu_bin not found in PATH"
 
-type=${1}
-script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-if [ ! -n "${type}" ]; then
-    type="ext4"
-fi
-
-qemu-system-aarch64 \
-    -M virt \
-    -cpu cortex-a53 \
-    -smp 4 \
-    -m 128M \
-    -kernel ${script_dir}/rtthread.bin \
-    -nographic \
-    -drive if=none,file=${script_dir}/${type}.img,format=raw,id=blk0 \
-    -device virtio-blk-device,drive=blk0,bus=virtio-mmio-bus.0 \
-    -netdev user,id=net0 \
-    -device virtio-net-device,netdev=net0,bus=virtio-mmio-bus.1
+        exec "$qemu_bin" \
+            -M virt \
+            -cpu cortex-a53 \
+            -m 128M \
+            -kernel "$kernel_image" \
+            -nographic \
+            -drive "if=none,file=$rootfs_image,format=raw,id=blk0"
+        ;;
 ```
 
-> **提示**：对于真实硬件，不需要 QEMU 启动脚本。烧录方式请参考具体硬件的文档。
+> **提示**：对于真实硬件，不需要扩展 QEMU 启动入口。烧录方式请参考具体硬件的文档。
 
 ## 4.9 验证新板卡
 
@@ -177,7 +169,7 @@ bitbake smart -c build_all
 
 ```bash
 ls build/myboard/
-# 应该包含：rtthread.bin  ext4.img  run_myboard.sh（如果创建了）
+# 应该包含：rtthread.bin  ext4.img  run-qemu
 ```
 
 ## 4.10 完整示例参考
@@ -196,7 +188,7 @@ meta-smart/
 └── ...
 
 tools/
-└── run_qemuarm64.sh                     # QEMU 启动脚本
+└── run-qemu                             # QEMU 启动脚本
 ```
 
 ### k230（嘉楠 K230，RISC-V）

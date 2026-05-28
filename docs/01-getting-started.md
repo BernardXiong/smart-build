@@ -125,14 +125,14 @@ bitbake smart -c build_kernel
 
 ```bash
 cd build/qemuarm64
-./run_qemuarm64.sh
+./run-qemu qemuarm64
 ```
 
 对于 RISC-V 64 版本：
 
 ```bash
 cd build/qemuriscv64
-./run_qemuriscv64.sh
+./run-qemu qemuriscv64
 ```
 
 启动成功后，你将看到 RT-Thread Smart 的终端交互界面，可以执行 shell 命令。

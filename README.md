@@ -73,7 +73,7 @@ $ bitbake smart -c clean  #同时清除toolchain，busybox， smart的编译文�
 然后可以进去到build/$MACHINE目录运行qemu（以qemuarm64为例）：
 ```bash
 $ cd build/qemuarm64
-$ ./run_qemuarm64.sh
+$ ./run-qemu qemuarm64
 ```
 ### 6. smart-build常用的操作指令：
 
@@ -97,7 +97,14 @@ $ bitbake smart -c build_kernel
 $ bitbake smart -c build_all
 ```
 
-5. 同时清除toolchain, busybox, smart的编译数据
+5. 构建只包含静态 hello world 程序的最小 rootfs 镜像
+```bash
+$ bitbake smart -c build_mini_rootfs
+```
+
+产物为 `build/$MACHINE/mini_rootfs.img`，该任务不会被 `build_all` 默认触发。
+
+6. 同时清除toolchain, busybox, smart的编译数据
 ```bash
 $ bitbake smart -c clean/cleansstate/cleanall
 ```
